@@ -74,7 +74,8 @@ class Middleware:
         await starkbiter_bindings.replay_block_with_txs(
             self.id,
             block_id.to_block_id(),
-            filters
+            filters,
+            True
         )
 
     async def impersonate(self, address: str) -> MockAccount:
