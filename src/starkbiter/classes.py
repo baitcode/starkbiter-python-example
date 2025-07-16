@@ -21,6 +21,26 @@ class Tokens(StrEnum):
     EKUBO = "ekubo"
 
 
+class Event:
+    from_address: str
+    keys: list[str]
+    data: list[str]
+    transaction_hash: str
+    block_hash: t.Optional[str]
+    block_number: t.Optional[int]
+
+    def __init__(self, from_address: str, keys: list[str], data: list[str],
+                 transaction_hash: str,
+                 block_number: t.Optional[int] = None,
+                 block_hash: t.Optional[str] = None):
+        self.from_address = from_address
+        self.keys = keys
+        self.data = data
+        self.transaction_hash = transaction_hash
+        self.block_number = block_number
+        self.block_hash = block_hash
+
+
 class GasPrice:
 
     gas_price_wei: int
@@ -103,14 +123,63 @@ class BlockHash:
 LatestBlockTag = BlockTag("latest")
 BlockId = t.Union[BlockTag, BlockNumber, BlockHash]
 
+# fn new(
+#     from_address: &str,
+#     keys: Vec<Vec<&str>>,
+
+#     // TODO(baitcode): for some reason pyo3 does
+#     // not support using python objects
+#     // in python objects
+#     from_block_number: Option<u64>,
+#     from_block_tag: Option<String>,
+#     from_block_hash: Option<String>,
+
+#     to_block_number: Option<u64>,
+#     to_block_tag: Option<String>,
+#     to_block_hash: Option<String>,
+# ) -> Self {
+
 
 class EventFilter:
-    def __init__(self, from_address: str, event_name: str, keys: list[int] = None):
+
+    def __init__(self,
+                 from_address: str,
+                 event_name: bytes,
+                 keys: list[list[int]] = None,
+                 from_block: t.Optional[BlockId] = None,
+                 to_block: t.Optional[BlockId] = None):
+
+        self.selector = f"0x{starknet_keccak(event_name).hex()}"
+        # TODO(baitcode): Feels like I'm doing something wrong here. Communicate to Damien this bit.
+        keys = [
+            [self.selector] + [hex(k) for k in keys]
+            for keys in keys or [[]]
+        ]
+
         self.from_address = from_address
         self.event_name = event_name
-        self.keys = keys or []
+        self.keys = keys
+        self.from_block = from_block
+        self.to_block = to_block
 
     def to_filter(self) -> starkbiter_bindings.EventFilter:
-        selector = starknet_keccak(self.event_name).hex()
-        keys = [selector] + self.keys
-        return starkbiter_bindings.EventFilter(self.from_address, keys)
+
+        from_block_number = self.from_block.number if isinstance(
+            self.from_block, BlockNumber) else None
+        from_block_tag = self.from_block.tag if isinstance(
+            self.from_block, BlockTag) else None
+        from_block_hash = self.from_block.hash if isinstance(
+            self.from_block, BlockHash) else None
+
+        to_block_number = self.to_block.number if isinstance(
+            self.to_block, BlockNumber) else None
+        to_block_tag = self.to_block.tag if isinstance(
+            self.to_block, BlockTag) else None
+        to_block_hash = self.to_block.hash if isinstance(
+            self.to_block, BlockHash) else None
+
+        return starkbiter_bindings.EventFilter(
+            self.from_address, self.keys,
+            from_block_number, from_block_tag, from_block_hash,
+            to_block_number, to_block_tag, to_block_hash,
+        )

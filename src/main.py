@@ -34,12 +34,12 @@ async def create_agent(env: Environment, agent_class):
     account = await middleware.create_account(ARGENT_ACCOUNT_CLASS_HASH)
     return agent_class(account)
 
-fork_block = 1521205
+fork_block = 1593123
 
 fork = ForkParams(
     url=f"https://starknet-mainnet.g.alchemy.com/starknet/version/rpc/v0_8/{ALCHEMY_API_KEY}/",
     block_number=fork_block,
-    block_hash="0x7aabf76192d3d16fe8bda54c0e7d0a9843c21fe20dd23704366bad38d57dc30"
+    block_hash="0x3d241b79d08109b8199ef697d3f97592e8a70cb9dd15c9b6075730cc68f5023"
 )
 
 
@@ -52,28 +52,45 @@ async def simulation(starting_block_number):
         middleware = await env.create_middleware()
         await middleware.set_gas_price(ALL_PRICES_1)
 
-        trader = await create_agent(env, TraderAgent)
-        arbitrager = await create_agent(env, ArbitragerAgent)
+        # trader = await create_agent(env, TraderAgent)
+        # arbitrager = await create_agent(env, ArbitragerAgent)
 
-        subscription = await middleware.subscribe_to_events()
-        event = None
+        iteration = 0
+        events = []
         while True:
-            print("Event:", event)
+            print("Events:", events)
 
-            await trader.act()
-            await arbitrager.act()
+            # await trader.act()
+            # await arbitrager.act()
 
             starting_block_number += 1
 
             filter_ekubo_swaps = EventFilter(
                 from_address=EKUBO_CORE_ADDRESS,
-                event_name="Swapped"
+                event_name=b"Swapped",
             )
 
-            # Will only apply transactions that emit ekubo Swapped events from core contract on the mainnet
-            await middleware.replay_block_with_txs(starting_block_number, filters=[filter_ekubo_swaps])
+            # Will only apply transactions that emit ekubo Swapped events from core contract on the mainnet. Will not create a block.
+            await middleware.replay_block_with_txs(
+                BlockNumber(starting_block_number),
+                filters=[filter_ekubo_swaps]
+            )
 
-            event = await subscription.get_event()
+            block_hash = await middleware.create_block()
+
+            print("Block hash:", block_hash)
+
+            events = await middleware.get_block_events(
+                from_block=BlockHash(block_hash),
+                keys=filter_ekubo_swaps.keys,
+                from_address=filter_ekubo_swaps.from_address
+            )
+
+            iteration += 1
+
+            if iteration > 5:
+                print("Simulation completed after 5 iterations.")
+                break
 
 
 asyncio.run(simulation(fork_block))

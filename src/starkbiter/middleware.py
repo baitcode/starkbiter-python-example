@@ -1,16 +1,8 @@
 import starkbiter_bindings
 import typing as t
 
-from .classes import Call, EventFilter, LatestBlockTag, Tokens, BlockId, GasPrice
+from .classes import Call, EventFilter, LatestBlockTag, Tokens, BlockId, GasPrice, Event
 from .accounts import Account, MockAccount
-
-
-class Subscription:
-    def __init__(self, subscription_id: str):
-        self.id = subscription_id
-
-    async def get_event(self) -> starkbiter_bindings.Event | None:
-        return await starkbiter_bindings.poll_subscription(self.id)
 
 
 class Middleware:
@@ -64,7 +56,6 @@ class Middleware:
         call: Call,
         block_id: BlockId = LatestBlockTag,
     ) -> list[str]:
-
         block_id = block_id.to_block_id()
 
         call = starkbiter_bindings.Call(
@@ -75,10 +66,15 @@ class Middleware:
     async def replay_block_with_txs(self,
                                     block_id: BlockId,
                                     filters: t.Optional[list[EventFilter]] = None):
+        filters = [
+            f.to_filter()
+            for f in filters
+        ] if filters else None
+
         await starkbiter_bindings.replay_block_with_txs(
             self.id,
             block_id.to_block_id(),
-            filters.map(lambda f: f.to_filter()) if filters else None
+            filters
         )
 
     async def impersonate(self, address: str) -> MockAccount:
@@ -88,7 +84,32 @@ class Middleware:
     async def stop_impersonate(self, address: str):
         await starkbiter_bindings.stop_impersonate(self.id, address)
 
-    async def subscribe_to_events(self) -> Subscription:
-        middleware_id = await starkbiter_bindings.create_middleware(self.id)
-        subscription_id = await starkbiter_bindings.create_subscription(middleware_id)
-        return Subscription(subscription_id)
+    async def create_block(self):
+        return await starkbiter_bindings.create_block(self.id)
+
+    async def get_block_events(
+        self,
+        from_block: t.Optional[BlockId] = None,
+        to_block: t.Optional[BlockId] = None,
+        from_address: t.Optional[str] = None,
+        keys: t.Optional[list[list[str]]] = None,
+    ) -> list[Event]:
+        events = await starkbiter_bindings.get_block_events(
+            self.id,
+            from_block=from_block.to_block_id() if from_block else None,
+            to_block=to_block.to_block_id() if to_block else None,
+            from_address=from_address,
+            keys=keys
+        )
+
+        return [
+            Event(
+                event.from_address,
+                event.keys,
+                event.data,
+                event.transaction_hash,
+                event.block_number,
+                event.block_hash
+            )
+            for event in events
+        ]

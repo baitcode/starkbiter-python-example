@@ -24,7 +24,7 @@ async def create_environment(label: str, chain: Chains, fork: ForkParams | None)
         label, chain.value, params
     )
 
-    starkbiter_bindings.set_tracing()
-    # await starkbiter_bindings.set_tracing("trace")
+    starkbiter_bindings.set_tracing(
+        "trace,starknet_devnet_core::starknet::defaulter=info,hyper_util::client::legacy::pool=info,microlp=info,starknet_providers::jsonrpc::transports::http=debug")
 
     return Environment(label, environment_id, chain)
