@@ -1,8 +1,9 @@
 import starkbiter_bindings
 import typing as t
 
-from .classes import Call, EventFilter, LatestBlockTag, Tokens, BlockId, GasPrice, Event
+from .classes import EventFilter, LatestBlockTag, Tokens, BlockId, GasPrice, Event
 from .accounts import Account, MockAccount
+from .known_calls import Call
 
 
 class Middleware:
@@ -10,6 +11,9 @@ class Middleware:
     def __init__(self, environment_id: str, middleware_id: str):
         self.environment_id = environment_id
         self.id = middleware_id
+
+    async def declare_contract(self, contract_class: str) -> str:
+        return await starkbiter_bindings.declare_contract(self.id, contract_class)
 
     async def create_account(self, class_hash: str) -> Account:
         address = await starkbiter_bindings.create_account(self.id, class_hash)
@@ -50,6 +54,9 @@ class Middleware:
             l2_gas_price_fri=gas_price.l2_gas_price_fri,
             generate_block=gas_price.generate_block,
         )
+
+    async def get_deployed_contract_address(self, tx_hash: str) -> str:
+        return await starkbiter_bindings.get_deployed_contract_address(self.id, tx_hash)
 
     async def call(
         self,

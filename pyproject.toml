@@ -1,6 +1,6 @@
 [project]
 dependencies = [
-    "starkbiter_bindings==0.1.17",
+    "starkbiter_bindings==0.1.21",
     "pycryptodome==3.23.0",
     "git+https://github.com/NethermindEth/starknet-abi.git",
 ]

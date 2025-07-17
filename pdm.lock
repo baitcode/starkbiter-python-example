@@ -5,7 +5,7 @@
 groups = ["default"]
 strategy = ["inherit_metadata"]
 lock_version = "4.5.0"
-content_hash = "sha256:e996b8b84330c536b5462f28891734ac68230bc3d071a4e20b812e75ee43afac"
+content_hash = "sha256:3358de37f84fbb525f9c5c5bc8afa3cbf5fe365cd5189217216c8a6e48a018fb"
 
 [[metadata.targets]]
 requires_python = "==3.12.*"
@@ -33,13 +33,13 @@ files = [
 
 [[package]]
 name = "starkbiter-bindings"
-version = "0.1.17"
+version = "0.1.21"
 requires_python = "<4.0,>=3.10"
 summary = ""
 groups = ["default"]
 files = [
-    {file = "starkbiter_bindings-0.1.17-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:06e7ace88a19c902435b74895d0ca1d1b9c84ef29906bcfbae3ef1b65b789881"},
-    {file = "starkbiter_bindings-0.1.17.tar.gz", hash = "sha256:bfcf4723b404d32bb9d04ff2f81e28bf81a6bec952d85cb73a7979eca54d1ba9"},
+    {file = "starkbiter_bindings-0.1.21-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:7b179c689ae195f8e7c94d7931f64ac55b591133f2e06cbe5966e0cf29ddd191"},
+    {file = "starkbiter_bindings-0.1.21.tar.gz", hash = "sha256:3832b8a3ff3666991fc23f8531f503f1988d8e306bf3a46d174ddebabc64f6ac"},
 ]
 
 [[package]]

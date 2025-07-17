@@ -1,6 +1,7 @@
 import starkbiter_bindings
 
-from .classes import Call, BlockId, LatestBlockTag, Tokens
+from .classes import BlockId, LatestBlockTag, Tokens
+from .known_calls import Call
 
 
 class Account:
@@ -13,9 +14,10 @@ class Account:
     async def execute(self, calls: list[Call]) -> str:
         return await starkbiter_bindings.account_execute(
             self.address,
-            calls.map(lambda call: starkbiter_bindings.Call(
-                call.to, call.selector, call.calldata
-            ))
+            [
+                starkbiter_bindings.Call(call.to, call.selector, call.calldata)
+                for call in calls
+            ]
         )
 
     async def call(
@@ -51,9 +53,10 @@ class MockAccount:
     async def execute(self, calls: list[Call]) -> str:
         return starkbiter_bindings.account_execute(
             self.address,
-            calls.map(lambda call: starkbiter_bindings.Call(
-                call.to, call.selector, call.calldata
-            ))
+            [
+                starkbiter_bindings.Call(call.to, call.selector, call.calldata)
+                for call in calls
+            ]
         )
 
     async def call(

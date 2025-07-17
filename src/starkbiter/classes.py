@@ -74,17 +74,6 @@ ALL_PRICES_1 = GasPrice(
 )
 
 
-class Call:
-    to: str
-    selector: str
-    calldata: list[int]
-
-    def __init__(self, to: str, selector: str, calldata: list[int]):
-        self.to = to
-        self.selector = selector
-        self.calldata = calldata
-
-
 class ForkParams:
     url: str
     block_number: int
