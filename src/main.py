@@ -110,11 +110,13 @@ class TraderAgent:
 
 fork_block = 1521205  # 1593123
 fork_hash = "0x7aabf76192d3d16fe8bda54c0e7d0a9843c21fe20dd23704366bad38d57dc30"
-
+node_url = f"https://starknet-mainnet.g.alchemy.com/starknet/version/rpc/v0_8/{ALCHEMY_API_KEY}/"
 
 fork = ForkParams(
     # IMPORTANT: Do not use blast API, it's API format is incompatible with starknet-rs lib
-    url=f"https://starknet-mainnet.g.alchemy.com/starknet/version/rpc/v0_8/{ALCHEMY_API_KEY}/",
+    # url=node_url,
+    url=f"sqlite://{os.getcwd()}/../mainnet-vacuumed.sqlite",
+
     # This is the block number to fork from
     block_number=fork_block,
     # This is the block hash to fork from. Yes we need both parameters for environment to work.
@@ -152,6 +154,7 @@ async def simulation(starting_block_number):
 
             # Will only apply transactions that emit ekubo Swapped events from core contract on the mainnet. Will not create a block.
             await middleware.replay_block_with_txs(
+                node_url,
                 BlockNumber(starting_block_number),
                 filters=[filter_ekubo_swaps]
             )

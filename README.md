@@ -7,12 +7,12 @@ This project PDM for dependency management.
 To create env do:
 
 ```bash
-pdm env create
+pdm venv create
 ```
 
 To activate it:
 ```bash
-source $(pdm env activate)
+eval $(pdm venv activate)
 ```
 
 To install dependencies when env activated:

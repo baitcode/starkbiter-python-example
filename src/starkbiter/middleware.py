@@ -71,6 +71,7 @@ class Middleware:
         return await starkbiter_bindings.call(self.id, call, block_id)
 
     async def replay_block_with_txs(self,
+                                    url: str,
                                     block_id: BlockId,
                                     filters: t.Optional[list[EventFilter]] = None):
         filters = [
@@ -80,6 +81,7 @@ class Middleware:
 
         await starkbiter_bindings.replay_block_with_txs(
             self.id,
+            url,
             block_id.to_block_id(),
             filters,
             True
