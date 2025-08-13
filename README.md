@@ -20,6 +20,11 @@ To install dependencies when env activated:
 pdm install
 ```
 
+To download snapshot use:
+```bash
+wget --continue https://starkbiter-snapshot.s3.eu-west-1.amazonaws.com/mainnet-2025-08-10-trim.sqlite mainnet.sqlite 
+```
+
 To run the example:
 ```bash
 python src/main.py

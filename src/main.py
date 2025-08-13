@@ -115,7 +115,7 @@ node_url = f"https://starknet-mainnet.g.alchemy.com/starknet/version/rpc/v0_8/{A
 fork = ForkParams(
     # IMPORTANT: Do not use blast API, it's API format is incompatible with starknet-rs lib
     # url=node_url,
-    url=f"sqlite://{os.getcwd()}/../mainnet-vacuumed.sqlite",
+    url=f"sqlite://{os.getcwd()}/mainnet.sqlite",
 
     # This is the block number to fork from
     block_number=fork_block,
